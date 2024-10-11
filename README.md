@@ -14,9 +14,9 @@ Basic Usage
 
 ```json
 {
-    "productIds": ["12345689"],
-    "zipCodes": ["12345689"],
-    "storeIds": ["12345689"]
+    "productIds": ["328984390"],
+    "zipCodes": ["60607"],
+    "storeIds": ["1950"]
 }
 ```
 
