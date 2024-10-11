@@ -30,6 +30,13 @@
             "description": "Enable if you want to scrape product reviews",
             "default": true
         },
+        "reviewsLimit": {
+            "title": "Reviews Limit",
+            "description": "limit the amount of reviews to scrape",
+            "type": "integer",
+            "default": 100,
+            "maximum": 500
+        },
         "proxyConfiguration":{
             "title": "Proxy configuration",
             "type": "object",

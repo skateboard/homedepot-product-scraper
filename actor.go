@@ -15,6 +15,7 @@ type input struct {
 	ZipCodes      []string `json:"zipCodes"`
 	StoreIds      []string `json:"storeIds"`
 	ScrapeReviews bool     `json:"scrapeReviews"`
+	ReviewsLimit  int      `json:"reviewsLimit"`
 }
 
 func main() {

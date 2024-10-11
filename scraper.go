@@ -295,7 +295,7 @@ func (s *scraper) scrapeReviews(productID string, tlsClient tls_client.HttpClien
 		revs = append(revs, map[string]any{
 			"title":    review.Get("Title").String(),
 			"rating":   review.Get("Rating").Float(),
-			"text":     review.Get("Text").String(),
+			"text":     review.Get("ReviewText").String(),
 			"username": review.Get("UserNickname").String(),
 		})
 	}

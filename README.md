@@ -43,6 +43,14 @@ Basic Usage
         "zip_code": "60607"
       }
     ],
+    "reviews": [
+    {
+      "rating": 4,
+      "text": "I really love it!",
+      "title": "Super awesome really like it",
+      "username": "SuperAwesomeReviewer"
+    }
+  ],
     "store_id": "1950"
   }
 ]
