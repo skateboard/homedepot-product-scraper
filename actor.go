@@ -11,9 +11,10 @@ import (
 type input struct {
 	*goapify.ProxyConfigurationOptions `json:"proxyConfiguration"`
 
-	ProductIds []string `json:"productIds"`
-	ZipCodes   []string `json:"zipCodes"`
-	StoreIds   []string `json:"storeIds"`
+	ProductIds    []string `json:"productIds"`
+	ZipCodes      []string `json:"zipCodes"`
+	StoreIds      []string `json:"storeIds"`
+	ScrapeReviews bool     `json:"scrapeReviews"`
 }
 
 func main() {

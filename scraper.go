@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
 
 	http "github.com/bogdanfinn/fhttp"
+	tls_client "github.com/bogdanfinn/tls-client"
 	"github.com/skateboard/ajson"
 
 	"github.com/data-harvesters/goapify"
@@ -192,6 +194,15 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 					continue
 				}
 
+				if s.input.ScrapeReviews {
+					reviews, err := s.scrapeReviews(productID, s.client.ProxiedClient())
+					if err == nil {
+						productData["reviews"] = reviews
+					} else {
+						fmt.Printf("%s: %s: failed to scrape reviews: %v\n", productID, storeID, err)
+					}
+				}
+
 				fmt.Printf("%s: %s: sending stock: %d\n", productID, storeID, len(stockLevels))
 
 				productData["stock_levels"] = stockLevels
@@ -213,4 +224,81 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 
 	s.Stop() // should never get here, theoretically, unless wanted
 	return 0, nil
+}
+
+func (s *scraper) scrapeReviews(productID string, tlsClient tls_client.HttpClient) ([]map[string]any, error) {
+	payload := strings.NewReader(fmt.Sprintf(`{
+	"operationName": "reviews",
+	"variables": {
+		"filters": {
+			"isVerifiedPurchase": false,
+			"prosCons": null,
+			"starRatings": null
+		},
+		"itemId": "%v",
+		"pagesize": "10",
+		"recfirstpage": "10",
+		"searchTerm": null,
+		"sortBy": "photoreview",
+		"startIndex": 0
+	},
+	"query": "query reviews($itemId: String!, $searchTerm: String, $sortBy: String, $startIndex: Int, $recfirstpage: String, $pagesize: String, $filters: ReviewsFilterInput) {\n  reviews(\n    itemId: $itemId\n    searchTerm: $searchTerm\n    sortBy: $sortBy\n    startIndex: $startIndex\n    recfirstpage: $recfirstpage\n    pagesize: $pagesize\n    filters: $filters\n  ) {\n    Results {\n      AuthorId\n      Badges {\n        DIY {\n          BadgeType\n          __typename\n        }\n        top250Contributor {\n          BadgeType\n          __typename\n        }\n        IncentivizedReview {\n          BadgeType\n          __typename\n        }\n        EarlyReviewerIncentive {\n          BadgeType\n          __typename\n        }\n        top1000Contributor {\n          BadgeType\n          __typename\n        }\n        VerifiedPurchaser {\n          BadgeType\n          __typename\n        }\n        __typename\n      }\n      BadgesOrder\n      CampaignId\n      ContextDataValues {\n        Age {\n          Value\n          __typename\n        }\n        VerifiedPurchaser {\n          Value\n          __typename\n        }\n        __typename\n      }\n      ContextDataValuesOrder\n      Id\n      IsRecommended\n      IsSyndicated\n      Photos {\n        Id\n        Sizes {\n          normal {\n            Url\n            __typename\n          }\n          thumbnail {\n            Url\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      ProductId\n      SubmissionTime\n      TagDimensions {\n        Pro {\n          Values\n          __typename\n        }\n        Con {\n          Values\n          __typename\n        }\n        __typename\n      }\n      Title\n      TotalNegativeFeedbackCount\n      TotalPositiveFeedbackCount\n      ClientResponses {\n        Response\n        Date\n        Department\n        __typename\n      }\n      Rating\n      RatingRange\n      ReviewText\n      SecondaryRatings {\n        Quality {\n          Label\n          Value\n          __typename\n        }\n        Value {\n          Label\n          Value\n          __typename\n        }\n        EnergyEfficiency {\n          Label\n          Value\n          __typename\n        }\n        Features {\n          Label\n          Value\n          __typename\n        }\n        Appearance {\n          Label\n          Value\n          __typename\n        }\n        EaseOfInstallation {\n          Label\n          Value\n          __typename\n        }\n        EaseOfUse {\n          Label\n          Value\n          __typename\n        }\n        __typename\n      }\n      SecondaryRatingsOrder\n      SyndicationSource {\n        LogoImageUrl\n        Name\n        __typename\n      }\n      UserNickname\n      UserLocation\n      Videos {\n        VideoId\n        VideoThumbnailUrl\n        VideoUrl\n        __typename\n      }\n      __typename\n    }\n    Includes {\n      Products {\n        store {\n          Id\n          FilteredReviewStatistics {\n            AverageOverallRating\n            TotalReviewCount\n            TotalRecommendedCount\n            RecommendedCount\n            NotRecommendedCount\n            SecondaryRatingsAveragesOrder\n            RatingDistribution {\n              RatingValue\n              Count\n              __typename\n            }\n            ContextDataDistribution {\n              Age {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              Gender {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              Expertise {\n                Values {\n                  Value\n                  __typename\n                }\n                __typename\n              }\n              HomeGoodsProfile {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              VerifiedPurchaser {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        items {\n          Id\n          FilteredReviewStatistics {\n            AverageOverallRating\n            TotalReviewCount\n            TotalRecommendedCount\n            RecommendedCount\n            NotRecommendedCount\n            SecondaryRatingsAveragesOrder\n            RatingDistribution {\n              RatingValue\n              Count\n              __typename\n            }\n            ContextDataDistribution {\n              Age {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              Gender {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              Expertise {\n                Values {\n                  Value\n                  __typename\n                }\n                __typename\n              }\n              HomeGoodsProfile {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              VerifiedPurchaser {\n                Values {\n                  Value\n                  Count\n                  __typename\n                }\n                __typename\n              }\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    FilterSelected {\n      StarRatings {\n        is5Star\n        is4Star\n        is3Star\n        is2Star\n        is1Star\n        __typename\n      }\n      VerifiedPurchaser\n      SearchText\n      __typename\n    }\n    pagination {\n      previousPage {\n        label\n        isNextPage\n        isPreviousPage\n        isSelectedPage\n        __typename\n      }\n      pages {\n        label\n        isNextPage\n        isPreviousPage\n        isSelectedPage\n        __typename\n      }\n      nextPage {\n        label\n        isNextPage\n        isPreviousPage\n        isSelectedPage\n        __typename\n      }\n      __typename\n    }\n    SortBy {\n      mosthelpfull\n      newest\n      oldest\n      highestrating\n      lowestrating\n      photoreview\n      __typename\n    }\n    TotalResults\n    __typename\n  }\n}"
+}`, productID))
+
+	req, err := http.NewRequest("POST", "https://www.homedepot.com/federation-gateway/graphql?opname=reviews", payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0")
+	req.Header.Add("Accept", "*/*")
+	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
+	req.Header.Add("Referer", "https://www.homedepot.com/p/DEWALT-20V-MAX-Lithium-Ion-Cordless-Cable-Stapler-with-2-0Ah-Battery-Charger-and-Bag-DCN701D1/308047450?store=4115")
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("X-Experience-Name", "b2b")
+	req.Header.Add("apollographql-client-name", "b2b")
+	req.Header.Add("apollographql-client-version", "0.0.0")
+	req.Header.Add("X-current-url", "/p/DEWALT-20V-MAX-Lithium-Ion-Cordless-Cable-Stapler-with-2-0Ah-Battery-Charger-and-Bag-DCN701D1/308047450")
+	req.Header.Add("x-hd-dc", "origin")
+	req.Header.Add("x-customer-type", "B2B")
+	req.Header.Add("x-customer-role", "ADMIN")
+	req.Header.Add("x-segment-id", "Contractors")
+	req.Header.Add("Origin", "https://www.homedepot.com")
+	req.Header.Add("Connection", "keep-alive")
+	req.Header.Add("Sec-Fetch-Dest", "empty")
+	req.Header.Add("Sec-Fetch-Mode", "cors")
+	req.Header.Add("Sec-Fetch-Site", "same-origin")
+	req.Header.Add("Pragma", "no-cache")
+	req.Header.Add("Cache-Control", "no-cache")
+	req.Header.Add("TE", "trailers")
+
+	res, err := tlsClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	j := ajson.Parse(string(body))
+
+	reviews := j.Get("data").Get("reviews").Get("Results").Array()
+
+	if len(reviews) == 0 {
+		return nil, errors.New("no reviews found")
+	}
+
+	var revs []map[string]any
+	for _, review := range reviews {
+		revs = append(revs, map[string]any{
+			"title":    review.Get("Title").String(),
+			"rating":   review.Get("Rating").Float(),
+			"text":     review.Get("Text").String(),
+			"username": review.Get("UserNickname").String(),
+		})
+	}
+
+	return revs, nil
 }

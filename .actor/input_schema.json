@@ -24,6 +24,12 @@
             "prefill": ["123456789"],
             "editor": "stringList"
         },
+        "scrapeReviews": {
+            "title": "Scrape Reviews",
+            "type": "boolean",
+            "description": "Enable if you want to scrape product reviews",
+            "default": true
+        },
         "proxyConfiguration":{
             "title": "Proxy configuration",
             "type": "object",
