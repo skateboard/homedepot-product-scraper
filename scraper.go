@@ -50,7 +50,7 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 
 			for _, storeID := range s.input.StoreIds {
 				productInfoSet := false
-				product := map[string]any{
+				productData := map[string]any{
 					"sku":      productID,
 					"store_id": storeID,
 				}
@@ -118,16 +118,15 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 						image := product.Get("media").Get("images").Array()[0].Get("url").String()
 						image = strings.Replace(image, "<SIZE>", "400", 1)
 
-						product["image"] = image
-						product["name"] = product.Get("identifiers").Get("productLabel").String()
-						product["brand"] = product.Get("identifiers").Get("brandName").String()
-						product["price"] = float32(product.Get("pricing").Get("value").Float())
-
+						productData["image"] = image
+						productData["name"] = product.Get("identifiers").Get("productLabel").String()
+						productData["brand"] = product.Get("identifiers").Get("brandName").String()
+						productData["price"] = float32(product.Get("pricing").Get("value").Float())
 					}
 
 					inv := map[string]any{
 						"zip_code":        zipCode,
-						"stock_level":     0,
+						"stock_level":     int64(0),
 						"delivery":        "N/A",
 						"delivery_charge": "",
 					}
@@ -164,11 +163,13 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 						for _, l := range service.Get("locations").Array() {
 							if l.Get("inventory.isOutOfStock").Exists() {
 								if l.Get("inventory.isOutOfStock").Bool() {
-									inv["stock_level"] = 0
+									inv["stock_level"] = int64(0)
 									break
 								}
 							}
-							inv["stock_level"] += l.Get("inventory.quantity").Int()
+							stockLevel := inv["stock_level"].(int64)
+							stockLevel += l.Get("inventory.quantity").Int()
+							inv["stock_level"] = stockLevel
 							break
 						}
 					}
@@ -191,13 +192,13 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 					continue
 				}
 
-				fmt.Printf("%s: %s: %s: sending stock: %d\n", productID, storeID, len(stockLevels))
+				fmt.Printf("%s: %s: sending stock: %d\n", productID, storeID, len(stockLevels))
 
-				product["stock_levels"] = stockLevels
+				productData["stock_levels"] = stockLevels
 
-				err := s.Actor().Output(product)
+				err := s.Actor().Output(productData)
 				if err != nil {
-					fmt.Printf("%s: %s: %s: failed send output: %d\n", productID, storeID, err)
+					fmt.Printf("%s: %s: failed send output: %d\n", productID, storeID, err)
 					continue
 				}
 			}
