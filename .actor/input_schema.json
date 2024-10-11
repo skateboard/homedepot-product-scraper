@@ -1,0 +1,40 @@
+{
+    "title": "Homedepot Product Scraper Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "productIds": {
+            "title": "Product IDs",
+            "type": "array",
+            "description": "An array of Homedepot Product IDs. You can provide multiple Product IDs or just one.",
+            "prefill": ["123456789"],
+            "editor": "stringList"
+        },
+        "zipCodes": {
+            "title": "Zip-codes",
+            "type": "array",
+            "description": "An array of US Zip codes. You can provide multiple Zipcodes IDs or just one.",
+            "prefill": ["123456789"],
+            "editor": "stringList"
+        },
+        "storeIds": {
+            "title": "Store IDs",
+            "type": "array",
+            "description": "An array of Homedepot Store IDs. You can provide multiple Store IDs or just one.",
+            "prefill": ["123456789"],
+            "editor": "stringList"
+        },
+        "proxyConfiguration":{
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Select proxies for scraper.",
+            "prefill": { "useApifyProxy": true },
+            "editor": "proxy"
+        }
+    },
+    "required": [
+        "productIds",
+        "zipCodes",
+        "storeIds"
+    ]
+}
