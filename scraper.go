@@ -115,10 +115,10 @@ func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error)
 
 					if !productInfoSet {
 						productInfoSet = true
-						image := product.Get("media").Get("images").Array()[0].Get("url").String()
-						image = strings.Replace(image, "<SIZE>", "400", 1)
+						// image := product.Get("media").Get("images").Array()[0].Get("url").String()
+						// image = strings.Replace(image, "<SIZE>", "400", 1)
 
-						productData["image"] = image
+						// productData["image"] = image
 						productData["name"] = product.Get("identifiers").Get("productLabel").String()
 						productData["brand"] = product.Get("identifiers").Get("brandName").String()
 						productData["price"] = float32(product.Get("pricing").Get("value").Float())
