@@ -4,7 +4,7 @@
 
 ## About This Actor
 
-This Actor is a powerful, user-fiendly tool made to scrape products from specific Homedepot Products. This tool will save you time and provide you with reliable data on products from Homedepot.
+This Actor is a powerful, user-fiendly tool made to scrape products from specific [Homedepot.com](https://homedepot.com) Products. This tool will save you time and provide you with reliable data on products from Homedepot.
 
 Made with Golang 1.22.1
 
@@ -16,7 +16,9 @@ Basic Usage
 {
     "productIds": ["328984390"],
     "zipCodes": ["60607"],
-    "storeIds": ["1950"]
+    "storeIds": ["1950"],
+    "scrapeReviews": true,
+    "reviewsLimit": 100
 }
 ```
 
@@ -25,6 +27,8 @@ Basic Usage
 | productIds | array | _["1223", "12312312", ...]_ | An array of Homedepot Product IDs |
 | zipCodes | array | _["1223", "12312312", ...]_ | An array of USA Zip-codes |
 | storeIds | array | _["1223", "12312312", ...]_ | An array of Homedepot Store IDs |
+| scrapeReviews | bool | _default=true_ | A boolean if you want to scrape product reviews |
+| reviewsLimit | int | _default=100_ | limit the number of reviews you want to scrape |
 
 ### Output Sample
 
