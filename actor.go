@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/data-harvesters/goapify"
-	goapifyscraper "github.com/data-harvesters/goapify-scraper"
+	goapifytask "github.com/data-harvesters/goapify-task"
 )
 
 type input struct {
@@ -46,5 +46,5 @@ func main() {
 		panic(err)
 	}
 
-	goapifyscraper.Run(s)
+	goapifytask.Run(s)
 }

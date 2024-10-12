@@ -11,12 +11,12 @@ import (
 	"github.com/skateboard/ajson"
 
 	"github.com/data-harvesters/goapify"
-	goapifyscraper "github.com/data-harvesters/goapify-scraper"
+	goapifytask "github.com/data-harvesters/goapify-task"
 	goapifytls "github.com/data-harvesters/goapify-tls"
 )
 
 type scraper struct {
-	goapifyscraper.Base
+	goapifytask.Base
 
 	input *input
 
@@ -30,20 +30,20 @@ func newScraper(input *input, actor *goapify.Actor) (*scraper, error) {
 	}
 
 	return &scraper{
-		Base:   *goapifyscraper.New(actor),
+		Base:   *goapifytask.New(actor),
 		input:  input,
 		client: tlsClient,
 	}, nil
 }
 
 const (
-	ScrapeProducts goapifyscraper.State = iota
+	ScrapeProducts goapifytask.State = iota
 	FinishedScraping
 )
 
-func (s *scraper) Next(state goapifyscraper.State) (goapifyscraper.State, error) {
+func (s *scraper) Next(state goapifytask.State) (goapifytask.State, error) {
 	switch state {
-	case goapifyscraper.Initialize:
+	case goapifytask.Initialize:
 		fmt.Println("initialzing homedepot product scraper")
 		return ScrapeProducts, nil
 	case ScrapeProducts:
